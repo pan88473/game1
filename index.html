@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Háptica Immersiva - Pink Edition</title>
+    <style>
+        :root {
+            --bg-pastel: #fff0f5;
+            --panel-bg: #ffffff;
+            --fuchsia-main: #d81b60;
+            --fuchsia-hover: #ad1457;
+            --pink-soft: #f8bbd0;
+            --pink-border: #f48fb1;
+            --text-dark: #4a154b;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            margin: 0; 
+            padding: 15px; 
+            background: var(--bg-pastel); 
+            color: var(--text-dark); 
+        }
+
+        h1 { font-size: 24px; color: var(--fuchsia-main); margin-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
+        p { font-size: 14px; }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .panel { 
+            background: var(--panel-bg); 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 8px 20px rgba(216, 27, 96, 0.1); 
+            margin: 15px 0; 
+            border: 2px solid var(--pink-soft);
+            text-align: left;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: var(--fuchsia-main);
+            font-size: 18px;
+            border-bottom: 2px dashed var(--pink-soft);
+            padding-bottom: 8px;
+        }
+
+        button { 
+            padding: 10px 14px; 
+            font-size: 14px; 
+            margin: 6px 4px; 
+            cursor: pointer; 
+            border-radius: 10px; 
+            border: none; 
+            font-weight: bold; 
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-patron { background: #fce4ec; color: var(--fuchsia-main); border: 1px solid var(--pink-border); }
+        .btn-patron:hover { background: var(--pink-soft); }
+        
+        .btn-principal { background: var(--fuchsia-main); color: white; width: 100%; font-size: 16px; padding: 12px; margin-top: 10px; }
+        .btn-principal:hover { background: var(--fuchsia-hover); }
+
+        /* Controles de Rango de Velocidad */
+        .control-velocidad {
+            background: #fff5f8;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 12px;
+            border: 1px solid var(--pink-border);
+        }
+        .control-velocidad label {
+            font-weight: bold;
+            font-size: 13px;
+            color: var(--fuchsia-main);
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--fuchsia-main);
+        }
+
+        /* Estilos del Chat */
+        #chat-container { 
+            background: var(--panel-bg); 
+            border-radius: 16px; 
+            padding: 15px; 
+            box-shadow: 0 8px 20px rgba(216, 27, 96, 0.1); 
+            border: 2px solid var(--pink-soft);
+            text-align: left; 
+        }
+        #mensajes { 
+            height: 140px; 
+            overflow-y: auto; 
+            background: #fff9fb; 
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            font-size: 13px; 
+            border: 1px solid #fce4ec;
+        }
+        .mensaje { margin-bottom: 6px; }
+        .mensaje b { color: var(--fuchsia-main); }
+        
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+        }
+        #input-chat { 
+            flex: 1; 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 1px solid var(--pink-border); 
+            outline: none;
+            background: #fff9fb;
+        }
+        #input-chat:focus { border-color: var(--fuchsia-main); }
+        #btn-enviar { background: #2e7d32; color: white; margin: 0; padding: 10px 15px; }
+
+        .badge-rol {
+            display: inline-block;
+            background: var(--pink-soft);
+            color: var(--fuchsia-main);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🌸 Haptic Trivia 🌸</h1>
+        <p id="estado">Conectando a la experiencia...</p>
+
+        <!-- Panel de Selección de Rol -->
+        <div id="panel-roles" class="panel" style="display:none; text-align:center;">
+            <h3>Elige tu rol</h3>
+            <p>Abre este enlace en dos teléfonos diferentes:</p>
+            <a href="?rol=1"><button class="btn-principal">Entrar como Jugador 1 (Juez / Preguntas)</button></a>
+            <a href="?rol=2"><button class="btn-principal" style="background:#ad1457;">Entrar como Jugador 2 (Vulnerable)</button></a>
+        </div>
+
+        <!-- Panel del Jugador 1 (Control de Castigos Hápticos Avanzados) -->
+        <div id="panel-jugador1" class="panel" style="display:none;">
+            <div class="badge-rol">Modo: Juez (Jugador 1)</div>
+            <h3>Control Háptico Inmersivo</h3>
+            <p>Selecciona la temática del castigo si la otra persona falla:</p>
+            
+            <div style="text-align:center;">
+                <button class="btn-patron" onclick="seleccionarPatron('unica')">⚡ Única</button>
+                <button class="btn-patron" onclick="seleccionarPatron('lluvia')">🌧️ Lluvia</button>
+                <button class="btn-patron" onclick="seleccionarPatron('fuego')">🔥 Fuego</button>
+                <button class="btn-patron" onclick="seleccionarPatron('tornado')">🌪️ Tornado</button>
+                <button class="btn-patron" onclick="seleccionarPatron('volcan')">🌋 Volcán</button>
+                <button class="btn-patron" onclick="seleccionarPatron('tsunami')">🌊 Tsunami</button>
+            </div>
+
+            <!-- Control de Velocidad / Ritmo -->
+            <div class="control-velocidad">
+                <label for="velocidadRange">Velocidad / Intensidad del Patrón: <span id="valVelocidad">1.0x</span></label>
+                <input type="range" id="velocidadRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="actualizarVelocidad(this.value)">
+            </div>
+
+            <p id="seleccionActual" style="font-size:13px; font-weight:bold; color:var(--fuchsia-main); text-align:center; margin-top:10px;">Patrón seleccionado: Ninguno</p>
+            <button class="btn-principal" onclick="enviarCastigoFinal()">¡Disparar Castigo Háptico!</button>
+        </div>
+
+        <!-- Panel del Jugador 2 (Vulnerable) -->
+        <div id="panel-jugador2" class="panel" style="display:none; text-align:center;">
+            <div class="badge-rol">Modo: Objetivo (Jugador 2)</div>
+            <h3>Zona Háptica Activa</h3>
+            <p>Mantente alerta. Si fallas, tu celular interpretará las fuerzas de la naturaleza.</p>
+            <button class="btn-patron" onclick="probarVibracionManual()">Probar Vibración de Prueba</button>
+        </div>
+
+        <!-- Apartado de Chat en Vivo con Emojis -->
+        <div id="chat-container" style="display:none;">
+            <h3>💬 Chat en Vivo</h3>
+            <div id="mensajes"></div>
+            <div class="chat-input-area">
+                <input type="text" id="input-chat" placeholder="Escribe un mensaje o emoji... 🌸" onkeypress="verificarEnter(event)">
+                <button id="btn-enviar" onclick="enviarMensaje()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        // PEGA AQUÍ TUS DATOS DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "tu-id",
+            appId: "tu-app-id"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const params = new URLSearchParams(window.location.search);
+        const rol = params.get("rol");
+
+        let patronSeleccionado = 'unica';
+        let velocidadActual = 1.0;
+
+        if (rol === "1" || rol === "2") {
+            document.getElementById("chat-container").style.display = "block";
+            document.getElementById("estado").innerText = `Conectado exitosamente`;
+            
+            if (rol === "1") {
+                document.getElementById("panel-jugador1").style.display = "block";
+            } else {
+                document.getElementById("panel-jugador2").style.display = "block";
+
+                // ESCUCHAR CASTIGOS EN TIEMPO REAL (Solo Jugador 2)
+                const castigoRef = ref(db, 'partida/castigo');
+                onValue(castigoRef, (snapshot) => {
+                    const datos = snapshot.val();
+                    if (datos && datos.timestamp) {
+                        ejecutarPatronHaptico(datos.patron, datos.velocidad);
+                    }
+                });
+            }
+
+            // ESCUCHAR EL CHAT EN TIEMPO REAL
+            const chatRef = ref(db, 'partida/chat');
+            onValue(chatRef, (snapshot) => {
+                const mensajesDiv = document.getElementById("mensajes");
+                mensajesDiv.innerHTML = "";
+                snapshot.forEach((childSnapshot) => {
+                    const msg = childSnapshot.val();
+                    mensajesDiv.innerHTML += `<div class="mensaje"><b>${msg.remitente}:</b> ${msg.texto}</div>`;
+                });
+                mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+            });
+
+        } else {
+            document.getElementById("panel-roles").style.display = "block";
+            document.getElementById("estado").innerText = "Selecciona tu rol para inicializar";
+        }
+
+        // --- GESTIÓN DE PATRONES Y VELOCIDAD ---
+        window.seleccionarPatron = function(patron) {
+            patronSeleccionado = patron;
+            document.getElementById("seleccionActual").innerText = `Patrón seleccionado: ${patron.toUpperCase()}`;
+        };
+
+        window.actualizarVelocidad = function(val) {
+            velocidadActual = parseFloat(val);
+            document.getElementById("valVelocidad").innerText = val + "x";
+        };
+
+        window.enviarCastigoFinal = function() {
+            const castigoRef = ref(db, 'partida/castigo');
+            set(castigoRef, {
+                patron: patronSeleccionado,
+                velocidad: velocidadActual,
+                timestamp: Date.now()
+            });
+        };
+
+        // Definición de Patrones Hápticos Inmersivos
+        const patronesBase = {
+            'unica': [350],
+            'lluvia': [40, 60, 40, 60, 40, 60, 40, 60, 40, 60, 40, 60],
+            'fuego': [100, 40, 180, 50, 70, 70, 300, 90, 150],
+            'tornado': [30, 120, 60, 100, 120, 80, 250, 50, 400, 40, 250, 60, 120, 100, 60, 120, 30],
+            'volcan': [400, 200, 400, 200, 800, 120, 1000],
+            'tsunami': [150, 150, 300, 120, 500, 100, 800, 80, 1200]
+        };
+
+        window.ejecutarPatronHaptico = function(patronKey, velocidad) {
+            if (!("vibrate" in navigator)) {
+                alert("Tu dispositivo o navegador no soporta vibración háptica.");
+                return;
+            }
+
+            const baseArray = patronesBase[patronKey] || [300];
+            
+            // Escalamos el patrón según el factor de velocidad (a mayor velocidad, menores pausas y duración más dinámica)
+            const patronModificado = baseArray.map((val, index) => {
+                // Si es un índice impar (pausa), se acorta más rápido con velocidad alta; si es par (vibración), se mantiene firme
+                if (index % 2 === 1) {
+                    return Math.max(20, Math.round(val / velocidad));
+                } else {
+                    return Math.max(30, Math.round(val / velocidad));
+                }
+            });
+
+            navigator.vibrate(patronModificado);
+        };
+
+        window.probarVibracionManual = function() {
+            ejecutarPatronHaptico(patronSeleccionado, velocidadActual);
+        };
+
+        // --- SISTEMA DE CHAT ---
+        window.enviarMensaje = function() {
+            const input = document.getElementById("input-chat");
+            const texto = input.value.trim();
+            if (texto === "") return;
+
+            const chatRef = ref(db, 'partida/chat');
+            push(chatRef, {
+                remitente: `Jugador ${rol}`,
+                texto: texto
+            });
+
+            input.value = "";
+        };
+
+        window.verificarEnter = function(e) {
+            if (e.key === "Enter") {
+                enviarMensaje();
+            }
+        };
+    </script>
+</body>
+</html>
