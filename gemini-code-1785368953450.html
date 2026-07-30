@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Preguntas con Vibración</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #222; color: #fff; }
+        button { padding: 15px 25px; font-size: 18px; margin: 10px; cursor: pointer; border-radius: 8px; border: none; }
+        .btn-error { background: #ff4757; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>Juego de Trivia Háptica</h1>
+    <p id="estado">Conectando al juego...</p>
+
+    <!-- Controles para la Persona 1 (El que pregunta) -->
+    <div id="panel-jugador1" style="display:none;">
+        <h3>Eres la Persona 1 (Control de Castigo)</h3>
+        <p>Si la Persona 2 falla la pregunta, presiona este botón:</p>
+        <button class="btn-error" onclick="enviarCastigo()">¡Falló! (Vibrar)</button>
+    </div>
+
+    <!-- Controles para la Persona 2 (El que responde) -->
+    <div id="panel-jugador2" style="display:none;">
+        <h3>Eres la Persona 2 (En la mira)</h3>
+        <p>Espera la pregunta. Si fallas, sentirás la vibración en tu celular.</p>
+        <button onclick="probarVibracion()">Probar vibración manual</button>
+    </div>
+
+    <script type="module">
+        // Importamos Firebase desde los servidores oficiales (CDN)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        // 1. PEGA AQUÍ TUS DATOS DE CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiv279W04EUz6dIWMW4QLoVgQSMN-KoNQ",
+  authDomain: "juegovibracion.firebaseapp.com",
+  databaseURL: "https://juegovibracion-default-rtdb.firebaseio.com",
+  projectId: "juegovibracion",
+  storageBucket: "juegovibracion.firebasestorage.app",
+  messagingSenderId: "353617360599",
+  appId: "1:353617360599:web:ccc74858dff1c2fa94e292"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Definimos roles simples basados en la URL (ej: index.html?rol=1 o index.html?rol=2)
+        const params = new URLSearchParams(window.location.search);
+        const rol = params.get("rol");
+
+        if (rol === "1") {
+            document.getElementById("panel-jugador1").style.display = "block";
+            document.getElementById("estado").innerText = "Modo: Jugador 1 (Preguntas)";
+        } else if (rol === "2") {
+            document.getElementById("panel-jugador2").style.display = "block";
+            document.getElementById("estado").innerText = "Modo: Jugador 2 (Vulnerable a vibración)";
+            
+            // ESCUCHAR LA BASE DE DATOS EN TIEMPO REAL
+            // Cada vez que cambie el valor de "castigo" en la nube, se ejecuta esto:
+            const castigoRef = ref(db, 'partida/castigo');
+            onValue(castigoRef, (snapshot) => {
+                const valor = snapshot.val();
+                // Si el valor es mayor a 0 (o cambia de timestamp), vibramos
+                if (valor) {
+                    dispararVibracion();
+                }
+            });
+        } else {
+            document.getElementById("estado").innerHTML = `
+                Elige tu rol para entrar:<br><br>
+                <a href="?rol=1"><button>Entrar como Jugador 1</button></a>
+                <a href="?rol=2"><button>Entrar como Jugador 2</button></a>
+            `;
+        }
+
+        // Función para que el Jugador 1 mande la orden
+        window.enviarCastigo = function() {
+            const castigoRef = ref(db, 'partida/castigo');
+            // Mandamos la hora actual (timestamp) para que siempre sea un valor diferente y dispare el evento
+            set(castigoRef, Date.now());
+        };
+
+        // Función de vibración en el celular del Jugador 2
+        window.dispararVibracion = function() {
+            if ("vibrate" in navigator) {
+                // Patrón: vibra 500ms, para 200ms, vibra 500ms
+                navigator.vibrate([500, 200, 500]);
+            } else {
+                alert("Este navegador no soporta vibración (ej. Estás en un iPhone o PC).");
+            }
+        };
+
+        window.probarVibracion = function() {
+            dispararVibracion();
+        }
+    </script>
+</body>
+</html>
