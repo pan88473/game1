@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Háptica Sensorial - Remix Edition</title>
+    <style>
+        :root {
+            --bg-pastel: #fff0f5;
+            --panel-bg: #ffffff;
+            --fuchsia-main: #d81b60;
+            --fuchsia-hover: #ad1457;
+            --pink-soft: #f8bbd0;
+            --pink-border: #f48fb1;
+            --text-dark: #4a154b;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            margin: 0; 
+            padding: 15px; 
+            background: var(--bg-pastel); 
+            color: var(--text-dark); 
+        }
+
+        h1 { font-size: 24px; color: var(--fuchsia-main); margin-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
+        p { font-size: 14px; }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .panel { 
+            background: var(--panel-bg); 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 8px 20px rgba(216, 27, 96, 0.1); 
+            margin: 15px 0; 
+            border: 2px solid var(--pink-soft);
+            text-align: left;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: var(--fuchsia-main);
+            font-size: 18px;
+            border-bottom: 2px dashed var(--pink-soft);
+            padding-bottom: 8px;
+        }
+
+        button { 
+            padding: 9px 12px; 
+            font-size: 12px; 
+            margin: 4px 2px; 
+            cursor: pointer; 
+            border-radius: 10px; 
+            border: none; 
+            font-weight: bold; 
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-patron { background: #fce4ec; color: var(--fuchsia-main); border: 1px solid var(--pink-border); }
+        .btn-patron:hover { background: var(--pink-soft); }
+        
+        .btn-principal { background: var(--fuchsia-main); color: white; width: 100%; font-size: 16px; padding: 12px; margin-top: 10px; }
+        .btn-principal:hover { background: var(--fuchsia-hover); }
+
+        .btn-alerta { background: #ffb74d; color: #fff; width: 100%; font-size: 14px; padding: 10px; margin-top: 8px; }
+
+        .custom-builder {
+            background: #fff5f8;
+            border: 1px dashed var(--fuchsia-main);
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+        .custom-builder h4 {
+            margin: 0 0 8px 0;
+            color: var(--fuchsia-main);
+            font-size: 14px;
+        }
+        .secuencia-preview {
+            background: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+            border: 1px solid var(--pink-border);
+            word-break: break-all;
+            min-height: 25px;
+            max-height: 70px;
+            overflow-y: auto;
+        }
+
+        .control-velocidad {
+            background: #fff5f8;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 12px;
+            border: 1px solid var(--pink-border);
+        }
+        .control-velocidad label {
+            font-weight: bold;
+            font-size: 13px;
+            color: var(--fuchsia-main);
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--fuchsia-main);
+        }
+
+        #modal-ayuda {
+            display: none;
+            background: #fff9fb;
+            border: 2px solid var(--fuchsia-main);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+            text-align: left;
+        }
+        #modal-ayuda ul { padding-left: 20px; margin: 5px 0; }
+        #modal-ayuda li { margin-bottom: 4px; }
+
+        #chat-container { 
+            background: var(--panel-bg); 
+            border-radius: 16px; 
+            padding: 15px; 
+            box-shadow: 0 8px 20px rgba(216, 27, 96, 0.1); 
+            border: 2px solid var(--pink-soft);
+            text-align: left; 
+        }
+        #mensajes { 
+            height: 130px; 
+            overflow-y: auto; 
+            background: #fff9fb; 
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            font-size: 13px; 
+            border: 1px solid #fce4ec;
+        }
+        .mensaje { margin-bottom: 6px; }
+        .mensaje b { color: var(--fuchsia-main); }
+        
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+        }
+        #input-chat { 
+            flex: 1; 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 1px solid var(--pink-border); 
+            outline: none;
+            background: #fff9fb;
+        }
+        #input-chat:focus { border-color: var(--fuchsia-main); }
+        #btn-enviar { background: #2e7d32; color: white; margin: 0; padding: 10px 15px; }
+
+        .badge-rol {
+            display: inline-block;
+            background: var(--pink-soft);
+            color: var(--fuchsia-main);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🌸 Haptic Trivia Remix 🌸</h1>
+        <p id="estado">Conectando a la experiencia...</p>
+
+        <div id="panel-roles" class="panel" style="display:none; text-align:center;">
+            <h3>Elige tu rol</h3>
+            <p>Abre este enlace en dos teléfonos diferentes:</p>
+            <a href="?rol=1"><button class="btn-principal">Entrar como Jugador 1 (Juez / Preguntas)</button></a>
+            <a href="?rol=2"><button class="btn-principal" style="background:#ad1457;">Entrar como Jugador 2 (Vulnerable)</button></a>
+        </div>
+
+        <div id="panel-jugador1" class="panel" style="display:none;">
+            <div class="badge-rol">Modo: Juez (Jugador 1)</div>
+            <h3>Laboratorio de Mixes Hápticos</h3>
+            <p>Selecciona un ritmo directo o construye tu secuencia combinada:</p>
+            
+            <div style="text-align:center;">
+                <button class="btn-patron" onclick="seleccionarPatronPreset('unica')">⚡ Única</button>
+                <button class="btn-patron" onclick="seleccionarPatronPreset('latido')">💓 Latido</button>
+                <button class="btn-patron" onclick="seleccionarPatronPreset('relampago')">🌩️ Relámpago</button>
+                <button class="btn-patron" onclick="seleccionarPatronPreset('lluvia')">🌧️ Lluvia</button>
+                <button class="btn-patron" onclick="seleccionarPatronPreset('fuego')">🔥 Fuego</button>
+                <button class="btn-patron" onclick="seleccionarPatronPreset('tornado')">🌪️ Tornado</button>
+                <button class="btn-patron" onclick="seleccionarPatronPreset('volcan')">🌋 Volcán</button>
+                <button class="btn-patron" onclick="seleccionarPatronPreset('terremoto')">🫨 Terremoto</button>
+                <button class="btn-patron" onclick="seleccionarPatronPreset('tsunami')">🌊 Tsunami</button>
+            </div>
+
+            <div class="custom-builder">
+                <h4>🛠️ Creador de Remixes (Secuencial)</h4>
+                <div class="secuencia-preview" id="previewCustom">Remix: [ Vacía ]</div>
+                <div style="text-align:center; font-size:11px; margin-bottom:4px; font-weight:bold; color:var(--fuchsia-main);">Añadir Patrones:</div>
+                <div style="text-align:center;">
+                    <button class="btn-patron" onclick="agregarPatronACustom('latido', '💓 Latido')">+ 💓 Latido</button>
+                    <button class="btn-patron" onclick="agregarPatronACustom('relampago', '🌩️ Relámpago')">+ 🌩️ Relámpago</button>
+                    <button class="btn-patron" onclick="agregarPatronACustom('lluvia', '🌧️ Lluvia')">+ 🌧️ Lluvia</button>
+                    <button class="btn-patron" onclick="agregarPatronACustom('fuego', '🔥 Fuego')">+ 🔥 Fuego</button>
+                    <button class="btn-patron" onclick="agregarPatronACustom('tornado', '🌪️ Tornado')">+ 🌪️ Tornado</button>
+                    <button class="btn-patron" onclick="agregarPatronACustom('volcan', '🌋 Volcán')">+ 🌋 Volcán</button>
+                    <button class="btn-patron" onclick="agregarPatronACustom('terremoto', '🫨 Terremoto')">+ 🫨 Terremoto</button>
+                    <button class="btn-patron" onclick="agregarPatronACustom('tsunami', '🌊 Tsunami')">+ 🌊 Tsunami</button>
+                </div>
+                <div style="text-align:center; font-size:11px; margin:6px 0 4px 0; font-weight:bold; color:var(--fuchsia-main);">Añadir Pausas:</div>
+                <div style="text-align:center;">
+                    <button class="btn-patron" onclick="agregarPausaACustom(150)">⏸️ Pausa 150ms</button>
+                    <button class="btn-patron" onclick="agregarPausaACustom(400)">⏸️ Pausa 400ms</button>
+                    <button class="btn-patron" style="background:#ffcdd2; color:#b71c1c;" onclick="limpiarCustom()">🗑️ Limpiar</button>
+                    <button class="btn-patron" style="background:#c8e6c9; color:#1b5e20;" onclick="seleccionarPatronCustom()">✨ Activar Remix</button>
+                </div>
+            </div>
+
+            <div class="control-velocidad">
+                <label for="velocidadRange">Multiplicador de Velocidad: <span id="valVelocidad">1.0x</span></label>
+                <input type="range" id="velocidadRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="actualizarVelocidad(this.value)">
+            </div>
+
+            <p id="seleccionActual" style="font-size:12px; font-weight:bold; color:var(--fuchsia-main); text-align:center; margin-top:8px;">Activo: Única</p>
+            <button class="btn-principal" onclick="enviarCastigoFinal()">¡Disparar Castigo Háptico!</button>
+        </div>
+
+        <div id="panel-jugador2" class="panel" style="display:none; text-align:center;">
+            <div class="badge-rol">Modo: Objetivo (Jugador 2)</div>
+            <h3>Zona Háptica Activa</h3>
+            <p>Mantente alerta. Si fallas, tu celular sentirá los efectos sensoriales en orden.</p>
+            
+            <button class="btn-patron" onclick="probarVibracionManual()">Probar Vibración Manual</button>
+            <button class="btn-alerta" onclick="alternarAyudaVibracion()">⚠️ ¿No vibra tu celular? Ver solución</button>
+
+            <div id="modal-ayuda">
+                <b>Guía rápida para activar la vibración:</b>
+                <ul>
+                    <li><b>¿Estás en iPhone?</b> iOS Safari no soporta vibración web. Usa Android.</li>
+                    <li><b>Modo Ahorro de Energía:</b> Desactívalo en tu barra de ajustes rápidos.</li>
+                    <li><b>Ajustes del Sistema:</b> Ve a <i>Ajustes > Sonido y vibración > Vibración al tocar</i> y enciéndelo.</li>
+                    <li><b>Permiso de Interacción:</b> Toca la pantalla al menos una vez para habilitar scripts.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="chat-container" style="display:none;">
+            <h3>💬 Chat en Vivo</h3>
+            <div id="mensajes"></div>
+            <div class="chat-input-area">
+                <input type="text" id="input-chat" placeholder="Escribe un mensaje o emoji... 🌸" onkeypress="verificarEnter(event)">
+                <button id="btn-enviar" onclick="enviarMensaje()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "tu-id",
+            appId: "tu-app-id"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const params = new URLSearchParams(window.location.search);
+        const rol = params.get("rol");
+
+        let tipoEnvioActual = 'preset';
+        let presetSeleccionado = 'unica';
+        let secuenciaCustomBlocks = [];
+        let velocidadActual = 1.0;
+
+        if (rol === "1" || rol === "2") {
+            document.getElementById("chat-container").style.display = "block";
+            document.getElementById("estado").innerText = `Conectado exitosamente`;
+            
+            if (rol === "1") {
+                document.getElementById("panel-jugador1").style.display = "block";
+            } else {
+                document.getElementById("panel-jugador2").style.display = "block";
+
+                const castigoRef = ref(db, 'partida/castigo');
+                onValue(castigoRef, (snapshot) => {
+                    const datos = snapshot.val();
+                    if (datos && datos.timestamp) {
+                        reproducirCastigoSecuencial(datos);
+                    }
+                });
+            }
+
+            const chatRef = ref(db, 'partida/chat');
+            onValue(chatRef, (snapshot) => {
+                const mensajesDiv = document.getElementById("mensajes");
+                mensajesDiv.innerHTML = "";
+                snapshot.forEach((childSnapshot) => {
+                    const msg = childSnapshot.val();
+                    mensajesDiv.innerHTML += `<div class="mensaje"><b>${msg.remitente}:</b> ${msg.texto}</div>`;
+                });
+                mensajesDiv.scrollTop = mensagensDiv.scrollHeight;
+            });
+
+        } else {
+            document.getElementById("panel-roles").style.display = "block";
+            document.getElementById("estado").innerText = "Selecciona tu rol para inicializar";
+        }
+
+        const patronesBase = {
+            'unica': [350],
+            'latido': [80, 100, 150, 400],
+            'relampago': [30, 40, 30, 40, 500, 50, 100],
+            'lluvia': [40, 60, 40, 60, 40, 60, 40, 60, 40, 60],
+            'fuego': [100, 40, 180, 50, 70, 70, 300, 90, 150],
+            'tornado': [30, 120, 60, 100, 120, 80, 250, 50, 400, 40],
+            'volcan': [400, 200, 400, 200, 800, 120, 1000],
+            'terremoto': [200, 50, 200, 50, 400, 40, 600, 30, 800, 20, 1000],
+            'tsunami': [150, 150, 300, 120, 500, 100, 800, 80, 1200]
+        };
+
+        window.seleccionarPatronPreset = function(patron) {
+            tipoEnvioActual = 'preset';
+            presetSeleccionado = patron;
+            document.getElementById("seleccionActual").innerText = `Activo: ${patron.toUpperCase()}`;
+        };
+
+        window.agregarPatronACustom = function(key, label) {
+            secuenciaCustomBlocks.push({ tipo: 'patron', key: key, label: label });
+            actualizarVistaCustomPreview();
+        };
+
+        window.agregarPausaACustom = function(ms) {
+            secuenciaCustomBlocks.push({ tipo: 'pausa', ms: ms, label: `⏸️ ${ms}ms` });
+            actualizarVistaCustomPreview();
+        };
+
+        window.limpiarCustom = function() {
+            secuenciaCustomBlocks = [];
+            actualizarVistaCustomPreview();
+        };
+
+        window.actualizarVistaCustomPreview = function() {
+            if (secuenciaCustomBlocks.length === 0) {
+                document.getElementById("previewCustom").innerText = "Remix: [ Vacía ]";
+                return;
+            }
+            const desc = secuenciaCustomBlocks.map(b => b.label).join(' ➔ ');
+            document.getElementById("previewCustom").innerText = `Remix: [ ${desc} ]`;
+        };
+
+        window.seleccionarPatronCustom = function() {
+            if (secuenciaCustomBlocks.length === 0) {
+                alert("Agrega al menos un patrón o pausa a tu remix.");
+                return;
+            }
+            tipoEnvioActual = 'custom';
+            document.getElementById("seleccionActual").innerText = `Activo: REMIX PERSONALIZADO (${secuenciaCustomBlocks.length} bloques)`;
+        };
+
+        window.actualizarVelocidad = function(val) {
+            velocidadActual = parseFloat(val);
+            document.getElementById("valVelocidad").innerText = val + "x";
+        };
+
+        window.enviarCastigoFinal = function() {
+            const castigoRef = ref(db, 'partida/castigo');
+            if (tipoEnvioActual === 'custom') {
+                if (secuenciaCustomBlocks.length === 0) {
+                    alert("Tu remix está vacío.");
+                    return;
+                }
+                set(castigoRef, {
+                    tipoEnvio: 'custom',
+                    bloques: secuenciaCustomBlocks,
+                    velocidad: velocidadActual,
+                    timestamp: Date.now()
+                });
+            } else {
+                set(castigoRef, {
+                    tipoEnvio: 'preset',
+                    key: presetSeleccionado,
+                    velocidad: velocidadActual,
+                    timestamp: Date.now()
+                });
+            }
+        };
+
+        // Motor Secuencial Asíncrono (Reproduce bloque por bloque en orden exacto)
+        window.reproducirCastigoSecuencial = async function(datos) {
+            if (!("vibrate" in navigator)) {
+                alert("Tu dispositivo no soporta vibración (es probable que estés usando iPhone/iOS).");
+                return;
+            }
+
+            const velocidad = datos.velocidad || 1.0;
+
+            if (datos.tipoEnvio === 'preset') {
+                let arrOriginal = patronesBase[datos.key] || [350];
+                let arrMod = arrOriginal.map((val, idx) => idx % 2 === 1 ? Math.max(15, Math.round(val / velocidad)) : Math.max(20, Math.round(val / velocidad)));
+                navigator.vibrate(arrMod);
+            } else if (datos.tipoEnvio === 'custom' && datos.bloques) {
+                for (let bloque of datos.bloques) {
+                    if (bloque.tipo === 'patron') {
+                        let arrOriginal = patronesBase[bloque.key] || [350];
+                        let arrMod = arrOriginal.map((val, idx) => idx % 2 === 1 ? Math.max(15, Math.round(val / velocidad)) : Math.max(20, Math.round(val / velocidad)));
+                        
+                        navigator.vibrate(arrMod);
+                        
+                        // Calculamos la duración exacta del patrón actual para esperar a que termine antes del siguiente bloque
+                        let duracionTotal = arrMod.reduce((a, b) => a + b, 0);
+                        await new Promise(resolve => setTimeout(resolve, duracionTotal + 40));
+                    } else if (bloque.tipo === 'pausa') {
+                        navigator.vibrate(0);
+                        let tiempoPausa = Math.round(bloque.ms / velocidad);
+                        await new Promise(resolve => setTimeout(resolve, tiempoPausa));
+                    }
+                }
+            }
+        };
+
+        window.probarVibracionManual = function() {
+            if (tipoEnvioActual === 'custom') {
+                reproducirCastigoSecuencial({
+                    tipoEnvio: 'custom',
+                    bloques: secuenciaCustomBlocks,
+                    velocidad: velocidadActual,
+                    timestamp: Date.now()
+                });
+            } else {
+                reproducirCastigoSecuencial({
+                    tipoEnvio: 'preset',
+                    key: presetSeleccionado,
+                    velocidad: velocidadActual,
+                    timestamp: Date.now()
+                });
+            }
+        };
+
+        window.alternarAyudaVibracion = function() {
+            const modal = document.getElementById("modal-ayuda");
+            modal.style.display = (modal.style.display === "block") ? "none" : "block";
+        };
+
+        window.enviarMensaje = function() {
+            const input = document.getElementById("input-chat");
+            const texto = input.value.trim();
+            if (texto === "") return;
+
+            const chatRef = ref(db, 'partida/chat');
+            push(chatRef, {
+                remitente: `Jugador ${rol}`,
+                texto: texto
+            });
+
+            input.value = "";
+        };
+
+        window.verificarEnter = function(e) {
+            if (e.key === "Enter") {
+                enviarMensaje();
+            }
+        };
+    </script>
+</body>
+</html>
